@@ -7,7 +7,6 @@ from sklearn.metrics import (
     recall_score,
     f1_score,
     roc_auc_score,
-    confusion_matrix,
     classification_report
 )
 
@@ -16,6 +15,7 @@ def evaluate_models(models_dict, X_test, y_test):
     metrics_summary = []
     predictions_dict = {}
     detailed_reports = {}
+    classwise_tables = {}
     
     for name, model in models_dict.items():
         start_time = time.time()
@@ -33,8 +33,8 @@ def evaluate_models(models_dict, X_test, y_test):
             roc_auc = np.nan
             
         acc = accuracy_score(y_test, y_pred)
-        f1_macro = f1_score(y_test, y_pred, average="macro")
-        f1_weighted = f1_score(y_test, y_pred, average="weighted")
+        f1_macro = f1_score(y_test, y_pred, average="macro", zero_division=0)
+        f1_weighted = f1_score(y_test, y_pred, average="weighted", zero_division=0)
         prec_macro = precision_score(y_test, y_pred, average="macro", zero_division=0)
         rec_macro = recall_score(y_test, y_pred, average="macro", zero_division=0)
         
@@ -50,10 +50,25 @@ def evaluate_models(models_dict, X_test, y_test):
         })
         
         predictions_dict[name] = y_pred
-        detailed_reports[name] = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
+        report_dict = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
+        detailed_reports[name] = report_dict
+        
+        # Build Per-Class Metrics DataFrame
+        class_rows = []
+        for digit in range(10):
+            d_str = str(digit)
+            if d_str in report_dict:
+                class_rows.append({
+                    "Digit": digit,
+                    "Precision": report_dict[d_str]["precision"],
+                    "Recall": report_dict[d_str]["recall"],
+                    "F1-Score": report_dict[d_str]["f1-score"],
+                    "Support": int(report_dict[d_str]["support"])
+                })
+        classwise_tables[name] = pd.DataFrame(class_rows)
         
     summary_df = pd.DataFrame(metrics_summary)
-    return summary_df, predictions_dict, detailed_reports
+    return summary_df, predictions_dict, detailed_reports, classwise_tables
 
 # Error Extraction for Diagnostic Analysis
 def get_error_indices(y_true, y_pred):

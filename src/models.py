@@ -1,11 +1,12 @@
 import time
+import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
-from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_val_score
 from config import RANDOM_STATE, CV_FOLDS
 
 # Pipeline and Model Factory
@@ -49,7 +50,7 @@ def get_param_grids():
     }
     return grids
 
-# Cross-Validation Training and Hyperparameter Tuning
+# Cross-Validation Training, Tuning, and Uncertainty Estimation
 def train_and_tune_models(X_train, y_train):
     pipelines = get_model_pipelines()
     param_grids = get_param_grids()
@@ -75,18 +76,24 @@ def train_and_tune_models(X_train, y_train):
             fit_time = time.time() - start_time
             best_model = search.best_estimator_
             best_params = search.best_params_
-            best_cv_score = search.best_score_
+            
+            best_idx = search.best_index_
+            cv_mean = float(search.cv_results_["mean_test_score"][best_idx])
+            cv_std = float(search.cv_results_["std_test_score"][best_idx])
         else:
+            scores = cross_val_score(pipeline, X_train, y_train, cv=cv, scoring="f1_macro")
             pipeline.fit(X_train, y_train)
             fit_time = time.time() - start_time
             best_model = pipeline
             best_params = {"strategy": "most_frequent"}
-            best_cv_score = 0.0
+            cv_mean = float(np.mean(scores))
+            cv_std = float(np.std(scores))
             
         trained_models[name] = best_model
         tuning_results[name] = {
             "best_params": best_params,
-            "best_cv_f1_macro": best_cv_score,
+            "cv_f1_macro_mean": cv_mean,
+            "cv_f1_macro_std": cv_std,
             "train_time_sec": fit_time
         }
         

@@ -14,18 +14,25 @@ This project implements a multi-class image classification workflow to recognize
 - **Exploratory Data Analysis**: Visualizing class balance, sample digits, mean class heatmaps, and intensity distributions.
 - **Preprocessing Pipeline**: `MinMaxScaler` feature scaling encapsulated within scikit-learn `Pipeline` objects.
 - **Model Development & CV Tuning**: 5-Fold Stratified Cross-Validation tuning across Logistic Regression, Random Forest, and Support Vector Machine against a Majority Baseline.
-- **Final Evaluation & Error Analysis**: Single evaluation pass on untouched test data with confusion matrices, class-wise metrics, and misclassified image diagnostics.
+- **Final Evaluation & Error Analysis**: Single evaluation pass on untouched test data with confusion matrices, class-wise precision/recall/F1 metrics, and misclassified image diagnostics.
 
 ---
 
 ## 2. Quick Start & Setup
 
-### Prerequisites
-- Python 3.10+ (Anaconda or standard Python virtual environment)
+### Environment Specifications
+- **Python**: `3.13.5` (or Python 3.10+)
+- **Packages**:
+  - `scikit-learn`: `1.6.1`
+  - `numpy`: `2.3.1`
+  - `pandas`: `2.2.3`
+  - `matplotlib`: `3.10.0`
+  - `seaborn`: `0.13.2`
+  - `joblib`: `1.5.2`
 
 ### Installation
-1. Open a terminal / PowerShell in the project directory (`d:\Python_Project`).
-2. Install the required dependencies:
+1. Open a terminal / PowerShell in the project root directory.
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
@@ -45,7 +52,8 @@ This will:
 3. Generate and save exploratory figures (`outputs/figures/01` to `04`).
 4. Train models and tune hyperparameters via 5-Fold Stratified Cross-Validation.
 5. Evaluate performance on the untouched test split.
-6. Generate diagnostic figures (`outputs/figures/05` to `08`) and export `outputs/test_evaluation_summary.csv`.
+6. Print overall model benchmarks and class-wise precision/recall/F1 metrics.
+7. Generate diagnostic figures (`outputs/figures/05` to `08`) and export CSV summaries to `outputs/`.
 
 ### Option B: Interactive Jupyter Notebook
 Open and run the notebook:
@@ -59,19 +67,19 @@ Select **Kernel -> Restart & Run All** to execute all cells sequentially.
 ## 4. Project Directory Structure
 
 ```text
-d:\Python_Project\
+project_root/
 ├── .gitignore                # Git ignore rules for Python/ML projects
-├── config.py                 # Centralized seeds, paths, and constants
+├── config.py                 # Centralized seeds, relative paths, and constants
 ├── main.py                   # Automated end-to-end pipeline script
 ├── notebook.ipynb            # Interactive step-by-step Jupyter Notebook
 ├── requirements.txt          # Package dependencies
 ├── data_dictionary.md        # Feature & target data dictionary
 ├── README.md                 # Project documentation and run guide
 ├── PROJECT_REPORT.md         # Full 12-section project report (PDF compliant)
-├── data\                     # Raw data directory
+├── data/                     # Raw data directory
 │   └── raw_digits.csv        # Persisted raw dataset copy
-├── outputs\                  # Generated metrics and visual artifacts
-│   ├── figures\              # High-resolution (300 DPI) plots
+├── outputs/                  # Generated metrics and visual artifacts
+│   ├── figures/              # High-resolution (300 DPI) plots
 │   │   ├── 01_class_distribution.png
 │   │   ├── 02_sample_digits.png
 │   │   ├── 03_mean_digit_heatmaps.png
@@ -80,8 +88,9 @@ d:\Python_Project\
 │   │   ├── 06_model_comparison.png
 │   │   ├── 07_misclassified_examples.png
 │   │   └── 08_classwise_f1_scores.png
-│   └── test_evaluation_summary.csv
-└── src\                      # Modular Python source package
+│   ├── test_evaluation_summary.csv
+│   └── classwise_metrics_summary.csv
+└── src/                      # Modular Python source package
     ├── __init__.py
     ├── data_loader.py        # Data ingestion, audit, and stratified split
     ├── eda.py                # Exploratory data analysis plots
@@ -94,19 +103,30 @@ d:\Python_Project\
 
 ## 5. Summary of Final Results
 
-### Benchmark Metrics (Untouched 20% Test Split)
+### Benchmark Metrics (Untouched 20% Test Split & 5-Fold Cross-Validation)
 
-| Model Family | Test Accuracy | Macro Precision | Macro Recall | Macro F1 | ROC-AUC (OVR) | Fit Time (s) | Inference Latency (ms) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Baseline (Majority)** | 10.00% | 0.0100 | 0.1000 | 0.0182 | N/A | 0.01 s | 0.002 ms |
-| **Logistic Regression** | 96.11% | 0.9620 | 0.9610 | 0.9612 | 0.9982 | 0.85 s | 0.004 ms |
-| **Random Forest** | 97.50% | 0.9758 | 0.9749 | 0.9751 | 0.9995 | 1.12 s | 0.038 ms |
-| **Support Vector Machine** | **98.61%** | **0.9868** | **0.9860** | **0.9863** | **0.9998** | **0.32 s** | **0.018 ms** |
+| Model Family | 5-Fold CV Macro F1 (Mean +/- SD) | Test Accuracy | Test Accuracy 95% CI | Macro Precision | Macro Recall | Macro F1 | ROC-AUC (Macro OVR) | Fit Time (s) | Inference Latency (ms) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Baseline (Majority)** | 0.0183 +/- 0.0000 | 10.00% | [7.2%, 13.6%] | 0.0100 | 0.1000 | 0.0182 | 0.5000 | 0.02 s | 0.001 ms |
+| **Logistic Regression** | 0.9687 +/- 0.0084 | 95.83% | [93.2%, 97.5%] | 0.9585 | 0.9579 | 0.9579 | 0.9992 | 2.59 s | 0.002 ms |
+| **Random Forest** | 0.9769 +/- 0.0076 | 96.39% | [93.9%, 97.9%] | 0.9647 | 0.9636 | 0.9635 | 0.9991 | 2.38 s | 0.031 ms |
+| **Support Vector Machine** | **0.9881 +/- 0.0034** | **99.44%** | **[97.9%, 99.8%]** | **0.9946** | **0.9944** | **0.9944** | **0.99997** | **0.52 s** | **0.044 ms** |
 
-### Key Takeaways:
-- **Top Performer**: Support Vector Machine (SVC with RBF kernel and MinMax scaling) achieved **98.61% test accuracy** with only 5 misclassified test samples out of 360.
-- **Fast Execution**: Entire pipeline trains and evaluates in under 3 seconds total.
-- **Leakage Prevention**: Strictly zero test data influence on scaling or parameter selection.
+### Per-Class Performance Table: Support Vector Machine (Test Split)
+
+| Digit Class | Precision | Recall | F1-Score | Support |
+| :---: | :---: | :---: | :---: | :---: |
+| **0** | 1.0000 | 1.0000 | 1.0000 | 36 |
+| **1** | 0.9730 | 1.0000 | 0.9863 | 36 |
+| **2** | 1.0000 | 1.0000 | 1.0000 | 35 |
+| **3** | 1.0000 | 1.0000 | 1.0000 | 37 |
+| **4** | 1.0000 | 1.0000 | 1.0000 | 36 |
+| **5** | 1.0000 | 1.0000 | 1.0000 | 37 |
+| **6** | 1.0000 | 1.0000 | 1.0000 | 36 |
+| **7** | 0.9730 | 1.0000 | 0.9863 | 36 |
+| **8** | 1.0000 | 0.9714 | 0.9855 | 35 |
+| **9** | 1.0000 | 0.9722 | 0.9859 | 36 |
+| **Macro Avg** | **0.9946** | **0.9944** | **0.9944** | **360** |
 
 ---
 
@@ -126,5 +146,5 @@ d:\Python_Project\
 ---
 
 ## 7. Relevant Documents
-- [Full Project Report (PROJECT_REPORT.md)](file:///d:/Python_Project/PROJECT_REPORT.md)
-- [Data Dictionary (data_dictionary.md)](file:///d:/Python_Project/data_dictionary.md)
+- [Full Project Report (PROJECT_REPORT.md)](file:///d:/Handwritten-digit-detection/PROJECT_REPORT.md)
+- [Data Dictionary (data_dictionary.md)](file:///d:/Handwritten-digit-detection/data_dictionary.md)

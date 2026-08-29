@@ -38,41 +38,39 @@ def plot_class_distribution(y_train, y_test):
 # Exploratory Analysis: Sample Digits Grid
 def plot_sample_digits(images, labels):
     setup_plot_style()
-    fig, axes = plt.subplots(2, 5, figsize=(10, 4.5), dpi=300)
+    fig, axes = plt.subplots(2, 5, figsize=(11, 5.8), dpi=300, gridspec_kw={"hspace": 0.45, "wspace": 0.25})
     
     for i in range(10):
         ax = axes[i // 5, i % 5]
         idx = np.where(labels == i)[0][0]
         ax.imshow(images[idx], cmap="gray_r", interpolation="nearest")
-        ax.set_title(f"Class: {i}", fontsize=11)
+        ax.set_title(f"Class: {i}", fontsize=11, fontweight="bold", pad=10)
         ax.axis("off")
         
-    plt.suptitle("Representative Handwritten Digit Samples (8x8)", fontsize=13, fontweight="bold")
-    plt.tight_layout()
+    plt.suptitle("Representative Handwritten Digit Samples (8x8)", fontsize=13, fontweight="bold", y=0.98)
     
     save_path = FIGURES_DIR / "02_sample_digits.png"
-    plt.savefig(save_path)
+    plt.savefig(save_path, bbox_inches="tight")
     plt.close()
     return save_path
 
 # Exploratory Analysis: Mean Pixel Intensity per Class
 def plot_mean_digit_heatmaps(X_train, y_train):
     setup_plot_style()
-    fig, axes = plt.subplots(2, 5, figsize=(11, 4.5), dpi=300)
+    fig, axes = plt.subplots(2, 5, figsize=(11, 5.8), dpi=300, gridspec_kw={"hspace": 0.45, "wspace": 0.25})
     
     for i in range(10):
         ax = axes[i // 5, i % 5]
         class_samples = X_train[y_train == i]
         mean_img = class_samples.mean(axis=0).reshape(IMAGE_SHAPE)
         sns.heatmap(mean_img, ax=ax, cmap="magma", cbar=False, square=True)
-        ax.set_title(f"Mean Digit '{i}'", fontsize=10)
+        ax.set_title(f"Mean Digit '{i}'", fontsize=10, fontweight="bold", pad=10)
         ax.axis("off")
         
-    plt.suptitle("Average Class Intensity Profiles (Training Split)", fontsize=13, fontweight="bold")
-    plt.tight_layout()
+    plt.suptitle("Average Class Intensity Profiles (Training Split)", fontsize=13, fontweight="bold", y=0.98)
     
     save_path = FIGURES_DIR / "03_mean_digit_heatmaps.png"
-    plt.savefig(save_path)
+    plt.savefig(save_path, bbox_inches="tight")
     plt.close()
     return save_path
 

@@ -1,6 +1,5 @@
-import sys
 import pandas as pd
-from config import OUTPUT_DIR, FIGURES_DIR, MODELS_DIR
+from config import OUTPUT_DIR, FIGURES_DIR
 from src.data_loader import load_raw_data, audit_data, split_data
 from src.eda import (
     plot_class_distribution,
@@ -38,23 +37,31 @@ def run_pipeline():
     print("\n=== Step 4: Model Training & Hyperparameter Tuning ===")
     trained_models, tuning_results = train_and_tune_models(X_train, y_train)
     for model_name, info in tuning_results.items():
-        print(f"[{model_name}] Best CV F1: {info['best_cv_f1_macro']:.4f} | Time: {info['train_time_sec']:.2f}s | Params: {info['best_params']}")
+        print(f"[{model_name}] 5-Fold CV Macro F1: {info['cv_f1_macro_mean']:.4f} +/- {info['cv_f1_macro_std']:.4f} | Time: {info['train_time_sec']:.2f}s | Params: {info['best_params']}")
         
     print("\n=== Step 5: Untouched Test Evaluation ===")
-    summary_df, predictions_dict, detailed_reports = evaluate_models(trained_models, X_test, y_test)
-    print("\n" + summary_df.to_string(index=False))
+    summary_df, predictions_dict, detailed_reports, classwise_tables = evaluate_models(trained_models, X_test, y_test)
+    print("\n--- Overall Model Summary (Untouched Test Split) ---")
+    print(summary_df.to_string(index=False))
+    
+    best_model_name = "Support Vector Machine"
+    print(f"\n--- Class-wise Precision, Recall & F1-Score ({best_model_name}) ---")
+    best_classwise_df = classwise_tables[best_model_name]
+    print(best_classwise_df.to_string(index=False))
     
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     summary_csv_path = OUTPUT_DIR / "test_evaluation_summary.csv"
     summary_df.to_csv(summary_csv_path, index=False)
-    print(f"\nSaved metrics summary to {summary_csv_path}")
+    
+    classwise_csv_path = OUTPUT_DIR / "classwise_metrics_summary.csv"
+    best_classwise_df.to_csv(classwise_csv_path, index=False)
+    print(f"\nSaved metrics summary tables to {OUTPUT_DIR}")
     
     print("\n=== Step 6: Diagnostic Visualization & Error Analysis ===")
     plot_confusion_matrices(trained_models, predictions_dict, y_test)
     plot_model_comparison(summary_df, tuning_results)
     plot_classwise_f1(detailed_reports)
     
-    best_model_name = "Support Vector Machine"
     best_preds = predictions_dict[best_model_name]
     error_list, _ = get_error_indices(y_test, best_preds)
     print(f"Total test errors for {best_model_name}: {len(error_list)} / {len(y_test)}")

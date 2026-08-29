@@ -5,14 +5,14 @@ RANDOM_STATE = 42
 TEST_SIZE = 0.20
 CV_FOLDS = 5
 
-# Directories
+# Directories (Resolved dynamically relative to project root)
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 OUTPUT_DIR = BASE_DIR / "outputs"
 FIGURES_DIR = OUTPUT_DIR / "figures"
 MODELS_DIR = OUTPUT_DIR / "models"
 
-# Target Classes
+# Target Classes & Geometry
 CLASS_NAMES = [str(i) for i in range(10)]
 IMAGE_SHAPE = (8, 8)
 NUM_PIXELS = 64
