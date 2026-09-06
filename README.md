@@ -31,8 +31,12 @@ This project implements a multi-class image classification workflow to recognize
   - `joblib`: `1.5.2`
 
 ### Installation
-1. Open a terminal / PowerShell in the project root directory.
-2. Install dependencies:
+1. Open a terminal / PowerShell in the project root directory:
+```bash
+git clone https://github.com/safarhana/Handwritten-digit-detection.git
+cd Handwritten-digit-detection
+```
+2. Install the required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
@@ -67,7 +71,7 @@ Select **Kernel -> Restart & Run All** to execute all cells sequentially.
 ## 4. Project Directory Structure
 
 ```text
-project_root/
+Handwritten-digit-detection/
 ├── .gitignore                # Git ignore rules for Python/ML projects
 ├── config.py                 # Centralized seeds, relative paths, and constants
 ├── main.py                   # Automated end-to-end pipeline script
@@ -75,7 +79,6 @@ project_root/
 ├── requirements.txt          # Package dependencies
 ├── data_dictionary.md        # Feature & target data dictionary
 ├── README.md                 # Project documentation and run guide
-├── PROJECT_REPORT.md         # Full 12-section project report (PDF compliant)
 ├── data/                     # Raw data directory
 │   └── raw_digits.csv        # Persisted raw dataset copy
 ├── outputs/                  # Generated metrics and visual artifacts
@@ -146,5 +149,9 @@ project_root/
 ---
 
 ## 7. Relevant Documents
-- [Full Project Report (PROJECT_REPORT.md)](file:///d:/Handwritten-digit-detection/PROJECT_REPORT.md)
-- [Data Dictionary (data_dictionary.md)](file:///d:/Handwritten-digit-detection/data_dictionary.md)
+- [Data Dictionary](data_dictionary.md)
+
+---
+
+## 8. Contributing
+Contributions and suggestions are welcome! Please feel free to submit a Pull Request or open an issue for bugs, enhancements, and documentation improvements.
