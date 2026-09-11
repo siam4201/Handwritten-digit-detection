@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+# Ensure project root is on sys.path regardless of execution method
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import pandas as pd
 import numpy as np
 from sklearn.datasets import load_digits
@@ -43,3 +51,12 @@ def split_data(X, y):
         random_state=RANDOM_STATE
     )
     return X_train, X_test, y_train, y_test
+
+if __name__ == "__main__":
+    X, y, images, df = load_raw_data()
+    audit = audit_data(X, y, df)
+    print("=== Data Loader Audit Summary ===")
+    print(f"Samples: {audit['n_samples']}, Features: {audit['n_features']}, Classes: {audit['n_classes']}")
+    print(f"Missing Values: {audit['missing_values']}, Duplicates: {audit['n_duplicates']}")
+    X_train, X_test, y_train, y_test = split_data(X, y)
+    print(f"Stratified Split: Train={X_train.shape[0]}, Test={X_test.shape[0]}")

@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+# Ensure project root is on sys.path regardless of execution method
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -88,3 +96,13 @@ def plot_pixel_distribution(X_train):
     plt.savefig(save_path)
     plt.close()
     return save_path
+
+if __name__ == "__main__":
+    from src.data_loader import load_raw_data, split_data
+    X, y, images, df = load_raw_data()
+    X_train, X_test, y_train, y_test = split_data(X, y)
+    plot_class_distribution(y_train, y_test)
+    plot_sample_digits(images, y)
+    plot_mean_digit_heatmaps(X_train, y_train)
+    plot_pixel_distribution(X_train)
+    print(f"Generated EDA plots in {FIGURES_DIR}")

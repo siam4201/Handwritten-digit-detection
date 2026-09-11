@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+# Ensure project root is on sys.path regardless of execution method
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -120,3 +128,18 @@ def plot_classwise_f1(detailed_reports):
     plt.savefig(save_path)
     plt.close()
     return save_path
+
+if __name__ == "__main__":
+    from src.data_loader import load_raw_data, split_data
+    from src.models import train_and_tune_models
+    from src.evaluate import evaluate_models
+    X, y, images, df = load_raw_data()
+    X_train, X_test, y_train, y_test = split_data(X, y)
+    trained_models, tuning_results = train_and_tune_models(X_train, y_train)
+    summary_df, predictions_dict, detailed_reports, _ = evaluate_models(trained_models, X_test, y_test)
+    plot_confusion_matrices(trained_models, predictions_dict, y_test)
+    plot_model_comparison(summary_df, tuning_results)
+    plot_classwise_f1(detailed_reports)
+    best_preds = predictions_dict["Support Vector Machine"]
+    plot_misclassified_samples(X_test, y_test, best_preds, "Support Vector Machine")
+    print(f"Generated diagnostic figures in {FIGURES_DIR}")

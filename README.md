@@ -9,7 +9,7 @@ An end-to-end, reproducible, leakage-safe machine learning classification projec
 This project implements a multi-class image classification workflow to recognize handwritten digits (0 through 9) from normalized 8x8 pixel intensity matrices.
 
 ### Core Workflow Stages:
-- **Data Provenance & Audit**: Automated loading and integrity checks (ranges, missing values, duplicates, and class balance).
+- **Data Provenance & Audit**: Automated loading and integrity checks (ranges $[0, 16]$, zero outliers, zero missing values, zero duplicates, and uniform class balance).
 - **Leakage-Safe Splitting**: 80/20 stratified train/test split with quarantined test data.
 - **Exploratory Data Analysis**: Visualizing class balance, sample digits, mean class heatmaps, and intensity distributions.
 - **Preprocessing Pipeline**: `MinMaxScaler` feature scaling encapsulated within scikit-learn `Pipeline` objects.
@@ -105,12 +105,12 @@ project_root/
 
 ### Benchmark Metrics (Untouched 20% Test Split & 5-Fold Cross-Validation)
 
-| Model Family | 5-Fold CV Macro F1 (Mean +/- SD) | Test Accuracy | Test Accuracy 95% CI | Macro Precision | Macro Recall | Macro F1 | ROC-AUC (Macro OVR) | Fit Time (s) | Inference Latency (ms) |
+| Model Family | 5-Fold CV Macro F1 (Mean +/- SD) | Test Accuracy | Test Accuracy 95% CI | Macro Precision | Macro Recall | Macro F1 | ROC-AUC (Macro OVR) | Fit Time (s) | Inference Latency (ms/sample) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Baseline (Majority)** | 0.0183 +/- 0.0000 | 10.00% | [7.2%, 13.6%] | 0.0100 | 0.1000 | 0.0182 | 0.5000 | 0.02 s | 0.001 ms |
-| **Logistic Regression** | 0.9687 +/- 0.0084 | 95.83% | [93.2%, 97.5%] | 0.9585 | 0.9579 | 0.9579 | 0.9992 | 2.59 s | 0.002 ms |
-| **Random Forest** | 0.9769 +/- 0.0076 | 96.39% | [93.9%, 97.9%] | 0.9647 | 0.9636 | 0.9635 | 0.9991 | 2.38 s | 0.031 ms |
-| **Support Vector Machine** | **0.9881 +/- 0.0034** | **99.44%** | **[97.9%, 99.8%]** | **0.9946** | **0.9944** | **0.9944** | **0.99997** | **0.52 s** | **0.044 ms** |
+| **Baseline (Majority)** | 0.0183 +/- 0.0000 | 10.00% | [7.2%, 13.6%] | 0.0100 | 0.1000 | 0.0182 | 0.5000 | 0.01 s | 0.001 ms |
+| **Logistic Regression** | 0.9687 +/- 0.0084 | 95.83% | [93.2%, 97.5%] | 0.9585 | 0.9579 | 0.9579 | 0.9992 | 2.37 s | 0.001 ms |
+| **Random Forest** | 0.9769 +/- 0.0076 | 96.39% | [93.9%, 97.9%] | 0.9647 | 0.9636 | 0.9635 | 0.9991 | 2.40 s | 0.034 ms |
+| **Support Vector Machine** | **0.9881 +/- 0.0034** | **99.44%** | **[97.9%, 99.8%]** | **0.9946** | **0.9944** | **0.9944** | **0.99997** | **0.50 s** | **0.033 ms** |
 
 ### Per-Class Performance Table: Support Vector Machine (Test Split)
 
@@ -135,12 +135,12 @@ project_root/
 | Figure File | Description |
 | :--- | :--- |
 | `01_class_distribution.png` | Stratified train (80%) and test (20%) class balance chart. |
-| `02_sample_digits.png` | Representative 8x8 handwritten digit samples for classes 0–9. |
+| `02_sample_digits.png` | Representative 8x8 handwritten digit samples with clean grid layout. |
 | `03_mean_digit_heatmaps.png` | Average pixel intensity profile heatmaps per digit class. |
 | `04_pixel_intensity_distribution.png` | Histogram showing raw pixel intensity distribution [0–16]. |
-| `05_confusion_matrices.png` | Test confusion matrix heatmaps for candidate models. |
+| `05_confusion_matrices.png` | Test confusion matrix heatmaps (SVM: 358/360 correct, 2 errors). |
 | `06_model_comparison.png` | Side-by-side comparison of Accuracy, Macro F1, and training time. |
-| `07_misclassified_examples.png` | Diagnostic gallery of actual misclassified test images with True vs Predicted labels. |
+| `07_misclassified_examples.png` | Diagnostic gallery of the 2 actual misclassified test images (8→1, 9→7). |
 | `08_classwise_f1_scores.png` | Per-class F1-score breakdown across all 10 digit classes. |
 
 ---

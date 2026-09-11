@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+# Ensure project root is on sys.path regardless of execution method
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import time
 import numpy as np
 import pandas as pd
@@ -81,3 +89,13 @@ def get_error_indices(y_true, y_pred):
             "predicted_label": int(y_pred[idx])
         })
     return error_data, mismatches
+
+if __name__ == "__main__":
+    from src.data_loader import load_raw_data, split_data
+    from src.models import train_and_tune_models
+    X, y, images, df = load_raw_data()
+    X_train, X_test, y_train, y_test = split_data(X, y)
+    trained_models, _ = train_and_tune_models(X_train, y_train)
+    summary_df, predictions_dict, detailed_reports, classwise_tables = evaluate_models(trained_models, X_test, y_test)
+    print("\n=== Model Evaluation Summary (Test Split) ===")
+    print(summary_df.to_string(index=False))

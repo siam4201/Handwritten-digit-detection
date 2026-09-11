@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+# Ensure project root is on sys.path regardless of execution method
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import time
 import numpy as np
 from sklearn.pipeline import Pipeline
@@ -98,3 +106,12 @@ def train_and_tune_models(X_train, y_train):
         }
         
     return trained_models, tuning_results
+
+if __name__ == "__main__":
+    from src.data_loader import load_raw_data, split_data
+    X, y, images, df = load_raw_data()
+    X_train, X_test, y_train, y_test = split_data(X, y)
+    trained_models, tuning_results = train_and_tune_models(X_train, y_train)
+    print("\n=== Cross-Validation Results ===")
+    for model_name, info in tuning_results.items():
+        print(f"[{model_name}] CV Macro F1: {info['cv_f1_macro_mean']:.4f} +/- {info['cv_f1_macro_std']:.4f} | Time: {info['train_time_sec']:.2f}s | Params: {info['best_params']}")
